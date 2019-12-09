@@ -1,6 +1,6 @@
 /**
  * 将图片压缩为对应尺寸
- * @param {Object} options 
+ * @param {Object} options
  * @param {String} options.img 图片的url或者base64数据
  * @param {Number} options.width 目标图片的宽度
  * @param {Number} options.height 目标图片的高度
@@ -13,50 +13,62 @@
 function pictureCompress(options) {
   return new Promise((resolve, reject) => {
     if (!options.img) {
-      reject(new Error('need img'))
-      return
+      reject(new Error('need img'));
+      return;
     }
     let imgSrc = options.img,
-      width = options.width || 640,
-      height = options.height || 640,
+      width = options.width,
+      height = options.height,
       type = options.type || 'jpg',
       quality = options.quality || 0.92,
       fit = options.fit || 'scale',
-      rotate = options.rotate || 0
-    if (width <= 0 || height <= 0) {
-      reject(new Error('dist width or height need > 0'))
-      return
+      rotate = options.rotate || 0;
+
+    if (width < 0 || height < 0 || width + height <= 0) {
+      reject(new Error('dist width or height need >= 0'));
+      return;
     }
     if (!/jpg|png|jpeg/.test(type)) {
-      reject(new Error('type need jpg or png!'))
-      return
+      reject(new Error('type need jpg or png!'));
+      return;
     }
     if (rotate !== 90 && rotate !== -90 && rotate !== 0 && rotate !== 180) {
-      reject(new Error('rotate mast be 0 90 -90 180!'))
-      return
+      reject(new Error('rotate mast be 0 90 -90 180!'));
+      return;
     }
-    let changeWidthAndHeight = rotate === 90 || rotate === -90
-    let image = new Image()
-    image.src = imgSrc
-    image.onload = function () {
-      let distSize = getDistSize({
-        width: changeWidthAndHeight ? this.naturalHeight : this.naturalWidth,
-        height: changeWidthAndHeight ? this.naturalWidth : this.naturalHeight
-      }, {
-        width: changeWidthAndHeight ? height : width,
-        height: changeWidthAndHeight ? width : height
-      }, fit)
-      let imgData = compress(this, distSize.width, distSize.height, type, quality, rotate)
+    let changeWidthAndHeight = rotate === 90 || rotate === -90;
+    let image = new Image();
+    image.src = imgSrc;
+    image.onload = function() {
+      let distSize = getDistSize(
+        {
+          width: changeWidthAndHeight ? this.naturalHeight : this.naturalWidth,
+          height: changeWidthAndHeight ? this.naturalWidth : this.naturalHeight,
+        },
+        {
+          width: changeWidthAndHeight ? height : width,
+          height: changeWidthAndHeight ? width : height,
+        },
+        fit
+      );
+      let imgData = compress(
+        this,
+        distSize.width,
+        distSize.height,
+        type,
+        quality,
+        rotate
+      );
       resolve({
         width: distSize.width,
         height: distSize.height,
-        img: imgData
-      })
-    }
-    image.onerror = function (err) {
-      reject(err)
-    }
-  })
+        img: imgData,
+      });
+    };
+    image.onerror = function(err) {
+      reject(err);
+    };
+  });
 }
 /**
  * 将图片转换为固定尺寸的
@@ -67,31 +79,31 @@ function pictureCompress(options) {
  * @param {Number} quality 转换之后的图片质量
  */
 function compress(img, width, height, type, quality, rotate) {
-  var canvas = document.createElement('canvas')
-  var ctx = canvas.getContext('2d')
+  var canvas = document.createElement('canvas');
+  var ctx = canvas.getContext('2d');
   let types = {
-    'jpg': 'image/jpeg',
-    'jpeg': 'image/jpeg',
-    'png': 'image/png'
-  }
-  canvas.width = width
-  canvas.height = height
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    png: 'image/png',
+  };
+  canvas.width = width;
+  canvas.height = height;
   if (rotate === 90) {
-    ctx.translate(width, 0)
-    ctx.rotate(90 * Math.PI / 180)
-    ctx.drawImage(img, 0, 0, height, width)
+    ctx.translate(width, 0);
+    ctx.rotate((90 * Math.PI) / 180);
+    ctx.drawImage(img, 0, 0, height, width);
   } else if (rotate === -90) {
-    ctx.translate(0, height)
-    ctx.rotate(-90 * Math.PI / 180)
-    ctx.drawImage(img, 0, 0, height, width)
+    ctx.translate(0, height);
+    ctx.rotate((-90 * Math.PI) / 180);
+    ctx.drawImage(img, 0, 0, height, width);
   } else if (rotate === 180) {
-    ctx.translate(width, height)
-    ctx.rotate(180 * Math.PI / 180)
-    ctx.drawImage(img, 0, 0, width, height)
+    ctx.translate(width, height);
+    ctx.rotate((180 * Math.PI) / 180);
+    ctx.drawImage(img, 0, 0, width, height);
   } else {
-    ctx.drawImage(img, 0, 0, width, height)
+    ctx.drawImage(img, 0, 0, width, height);
   }
-  return canvas.toDataURL(types[type], quality)
+  return canvas.toDataURL(types[type], quality);
 }
 /**
  * 选择源尺寸与目标尺寸比例中较小的那个，保证图片可以完全显示
@@ -100,11 +112,15 @@ function compress(img, width, height, type, quality, rotate) {
  * @param {Object} dist 目标图片的宽高
  */
 function getDistSize(source, dist, fit) {
-  if (fit === 'fill') return dist
-  let scale = Math.min(dist.width / source.width, dist.height / source.height, 1)
+  if (fit === 'fill') return dist;
+  let scale = Math.min(
+    dist.width ? dist.width / source.width : 1,
+    dist.height ? dist.height / source.height : 1,
+    1
+  );
   return {
     width: Math.round(source.width * scale),
-    height: Math.round(source.height * scale)
-  }
+    height: Math.round(source.height * scale),
+  };
 }
-export default pictureCompress
+export default pictureCompress;

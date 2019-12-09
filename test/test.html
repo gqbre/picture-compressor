@@ -1,39 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>测试</title>
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>测试</title>
-</head>
-
-<body>
-  <input type="file" id="file" />
-  <script src="../dist/picture-compressor.js"></script>
-  <script>
-    rotate = 0
-    let files = document.getElementById('file')
-    files.addEventListener('change', () => {
-      let file = files.files[0]
-      let reads = new FileReader()
-      reads.readAsDataURL(file)
-      reads.onload = function () {
-        console.log(this)
-        pictureCompress({
-          img: this.result,
-          width: 100,
-          height: 100,
-          rotate: rotate
-        }).then(res => {
-          console.log(res.width, res.height)
-          var img = new Image()
-          img.src = res.img
-          document.body.appendChild(img)
-        })
-      }
-    })
-  </script>
-</body>
-
+  <body>
+    <input type="file" id="file" />
+    <script src="../dist/picture-compressor.js"></script>
+    <script>
+      rotate = 0;
+      let files = document.getElementById('file');
+      files.addEventListener('change', () => {
+        let file = files.files[0];
+        let reads = new FileReader();
+        reads.readAsDataURL(file);
+        reads.onload = function() {
+          console.log(this);
+          pictureCompress({
+            img: this.result,
+            width: 1200,
+            height: 0,
+            rotate: rotate,
+          }).then(res => {
+            console.log(res.width, res.height);
+            var img = new Image();
+            img.src = res.img;
+            document.body.appendChild(img);
+          });
+        };
+      });
+    </script>
+  </body>
 </html>

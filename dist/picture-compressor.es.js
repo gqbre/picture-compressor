@@ -1,6 +1,6 @@
 /**
  * 将图片压缩为对应尺寸
- * @param {Object} options 
+ * @param {Object} options
  * @param {String} options.img 图片的url或者base64数据
  * @param {Number} options.width 目标图片的宽度
  * @param {Number} options.height 目标图片的高度
@@ -18,15 +18,15 @@ function pictureCompress(options) {
     }
 
     var imgSrc = options.img,
-        width = options.width || 640,
-        height = options.height || 640,
+        width = options.width,
+        height = options.height,
         type = options.type || 'jpg',
         quality = options.quality || 0.92,
         fit = options.fit || 'scale',
         rotate = options.rotate || 0;
 
-    if (width <= 0 || height <= 0) {
-      reject(new Error('dist width or height need > 0'));
+    if (width < 0 || height < 0 || width + height <= 0) {
+      reject(new Error('dist width or height need >= 0'));
       return;
     }
 
@@ -79,9 +79,9 @@ function compress(img, width, height, type, quality, rotate) {
   var canvas = document.createElement('canvas');
   var ctx = canvas.getContext('2d');
   var types = {
-    'jpg': 'image/jpeg',
-    'jpeg': 'image/jpeg',
-    'png': 'image/png'
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    png: 'image/png'
   };
   canvas.width = width;
   canvas.height = height;
@@ -114,7 +114,7 @@ function compress(img, width, height, type, quality, rotate) {
 
 function getDistSize(source, dist, fit) {
   if (fit === 'fill') return dist;
-  var scale = Math.min(dist.width / source.width, dist.height / source.height, 1);
+  var scale = Math.min(dist.width ? dist.width / source.width : 1, dist.height ? dist.height / source.height : 1, 1);
   return {
     width: Math.round(source.width * scale),
     height: Math.round(source.height * scale)

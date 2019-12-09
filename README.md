@@ -5,7 +5,7 @@
 使用时，可以设置目标图片的宽高
 返回的目标图片填充模式有两种
 
-- **scale** 等比例缩放，保证图片在设置的宽高之内完成显示
+- **scale** 默认等比例缩放，保证图片在设置的宽高之内完成显示，设置宽/高为 0 时则此边为等比自动缩放值
 
 ![](https://suohb.com/images/scale.png)
 
@@ -32,30 +32,30 @@ npm install picture-compressor --save
   </div>
 </template>
 <script>
-  import pictureCompress from "picture-compressor"
+  import pictureCompress from 'picture-compressor';
   export default {
-    name: "APP",
+    name: 'APP',
     methods: {
       fileUpload: function() {
-        var file = this.$refs["upload"].files[0]
-        var rotate = 90
-        var reads = new FileReader()
-        reads.readAsDataURL(file)
+        var file = this.$refs['upload'].files[0];
+        var rotate = 90;
+        var reads = new FileReader();
+        reads.readAsDataURL(file);
         reads.onload = function() {
           pictureCompress({
             img: this.result,
             width: 400,
             height: 400,
-            rotate: rotate
+            rotate: rotate,
           }).then(res => {
-            var img = new Image()
-            img.src = res.img
-            document.body.appendChild(img)
-          })
-        }
-      }
-    }
-  }
+            var img = new Image();
+            img.src = res.img;
+            document.body.appendChild(img);
+          });
+        };
+      },
+    },
+  };
 </script>
 ```
 
@@ -65,25 +65,25 @@ or
 <input type="file" id="file" />
 <script src="../dist/picture-compressor.js"></script>
 <script>
-  rotate = 0
-  var files = document.getElementById("file")
-  files.addEventListener("change", () => {
-    var file = files.files[0]
-    var reads = new FileReader()
-    reads.readAsDataURL(file)
+  rotate = 0;
+  var files = document.getElementById('file');
+  files.addEventListener('change', () => {
+    var file = files.files[0];
+    var reads = new FileReader();
+    reads.readAsDataURL(file);
     reads.onload = function() {
       pictureCompress({
         img: this.result,
-        width: 100,
-        height: 100,
-        rotate: rotate
+        width: 1000,
+        height: 0,
+        rotate: rotate,
       }).then(res => {
-        var img = new Image()
-        img.src = res.img
-        document.body.appendChild(img)
-      })
-    }
-  })
+        var img = new Image();
+        img.src = res.img;
+        document.body.appendChild(img);
+      });
+    };
+  });
 </script>
 ```
 
@@ -92,8 +92,8 @@ or
 | name    | type   | 描述                                      | 是否必选 | 默认值 |
 | ------- | ------ | ----------------------------------------- | -------- | ------ |
 | img     | String | 图片资源的 url 或者 base64                | Y        | -      |
-| width   | Number | 生成图片的宽度 > 0                        | Y        | -      |
-| height  | Number | 生成图片的高度 > 0                        | Y        | -      |
+| width   | Number | 生成图片的宽度 >= 0                       | Y        | -      |
+| height  | Number | 生成图片的高度 >= 0                       | Y        | -      |
 | quality | Number | 生产图片质量                              | N        | 0.92   |
 | type    | String | 生成图片类型(jpg or png)                  | N        | jpg    |
 | fit     | String | 图片填充方式(scale:等比缩放 or fill:填充) | N        | scale  |
