@@ -1,4 +1,4 @@
-# picture-compressor
+# picture-compressor-plus
 
 前端图片压缩工具，使用 canvas 对图片做压缩处理。
 
@@ -20,7 +20,7 @@
 ## 安装
 
 ```
-npm install picture-compressor --save
+npm install picture-compressor-plus --save
 ```
 
 ## 使用
@@ -32,7 +32,7 @@ npm install picture-compressor --save
   </div>
 </template>
 <script>
-  import pictureCompress from 'picture-compressor';
+  import pictureCompress from 'picture-compressor-plus';
   export default {
     name: 'APP',
     methods: {
@@ -63,7 +63,7 @@ or
 
 ```html
 <input type="file" id="file" />
-<script src="../dist/picture-compressor.js"></script>
+<script src="../dist/picture-compressor-plus.js"></script>
 <script>
   rotate = 0;
   var files = document.getElementById('file');
@@ -106,3 +106,7 @@ or
 | img    | String | 图片 base64 |
 | width  | Number | 图片宽度    |
 | height | Number | 图片高度    |
+
+## Fork from
+
+https://github.com/shb190802/picture-compressor
