@@ -1,3 +1,5 @@
+import EXIF from 'exif-js';
+
 /**
  * 将图片压缩为对应尺寸
  * @param {Object} options
@@ -7,9 +9,9 @@
  * @param {Number} options.quality 生成目标图片质量
  * @param {String} options.fit 图片压缩填充模式默认 scale：按比例缩放，可选 fill：按使用目标尺寸
  * @param {String} options.type 图片压缩类型默认 jpg，可选 png
- * @param {Number} options.rotate 图片旋转，由于手机拍照的角度和我们使用的头像不一致，需要旋转 默认0 仅支持 90 180 -90
  * @returns {Promise} then {width,height,img}
  */
+
 function pictureCompress(options) {
   return new Promise(function (resolve, reject) {
     if (!options.img) {
@@ -22,8 +24,7 @@ function pictureCompress(options) {
         height = options.height,
         type = options.type || 'jpg',
         quality = options.quality || 0.92,
-        fit = options.fit || 'scale',
-        rotate = options.rotate || 0;
+        fit = options.fit || 'scale';
 
     if (width < 0 || height < 0 || width + height <= 0) {
       reject(new Error('dist width or height need >= 0'));
@@ -35,24 +36,23 @@ function pictureCompress(options) {
       return;
     }
 
-    if (rotate !== 90 && rotate !== -90 && rotate !== 0 && rotate !== 180) {
-      reject(new Error('rotate mast be 0 90 -90 180!'));
-      return;
-    }
-
-    var changeWidthAndHeight = rotate === 90 || rotate === -90;
     var image = new Image();
     image.src = imgSrc;
 
     image.onload = function () {
+      var orientation = 1;
+      EXIF.getData(image, function () {
+        orientation = EXIF.getTag(this, 'Orientation') || 1;
+        console.log(orientation);
+      });
       var distSize = getDistSize({
-        width: changeWidthAndHeight ? this.naturalHeight : this.naturalWidth,
-        height: changeWidthAndHeight ? this.naturalWidth : this.naturalHeight
+        width: this.naturalWidth,
+        height: this.naturalHeight
       }, {
-        width: changeWidthAndHeight ? height : width,
-        height: changeWidthAndHeight ? width : height
+        width: width,
+        height: height
       }, fit);
-      var imgData = compress(this, distSize.width, distSize.height, type, quality, rotate);
+      var imgData = compress(this, distSize.width, distSize.height, type, quality, orientation);
       resolve({
         width: distSize.width,
         height: distSize.height,
@@ -75,7 +75,7 @@ function pictureCompress(options) {
  */
 
 
-function compress(img, width, height, type, quality, rotate) {
+function compress(img, width, height, type, quality, orientation) {
   var canvas = document.createElement('canvas');
   var ctx = canvas.getContext('2d');
   var types = {
@@ -84,20 +84,36 @@ function compress(img, width, height, type, quality, rotate) {
     png: 'image/png'
   };
   canvas.width = width;
-  canvas.height = height;
+  canvas.height = height; // 处理自动旋转问题
 
-  if (rotate === 90) {
-    ctx.translate(width, 0);
-    ctx.rotate(90 * Math.PI / 180);
-    ctx.drawImage(img, 0, 0, height, width);
-  } else if (rotate === -90) {
-    ctx.translate(0, height);
-    ctx.rotate(-90 * Math.PI / 180);
-    ctx.drawImage(img, 0, 0, height, width);
-  } else if (rotate === 180) {
-    ctx.translate(width, height);
-    ctx.rotate(180 * Math.PI / 180);
-    ctx.drawImage(img, 0, 0, width, height);
+  if (orientation && orientation !== 1) {
+    switch (orientation) {
+      case 6:
+        // 旋转90度
+        canvas.width = height;
+        canvas.height = width;
+        ctx.rotate(Math.PI / 2); // (0,-height) 从旋转原理图那里获得的起始点
+
+        ctx.drawImage(img, 0, -height, width, height);
+        break;
+
+      case 3:
+        // 旋转180度
+        ctx.rotate(Math.PI);
+        ctx.drawImage(img, -width, -height, width, height);
+        break;
+
+      case 8:
+        // 旋转-90度
+        canvas.width = height;
+        canvas.height = width;
+        ctx.rotate(3 * Math.PI / 2);
+        ctx.drawImage(img, -width, 0, width, height);
+        break;
+
+      default:
+        break;
+    }
   } else {
     ctx.drawImage(img, 0, 0, width, height);
   }

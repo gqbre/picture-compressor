@@ -13,9 +13,9 @@
 
 ![](https://suohb.com/images/fill.png)
 
-### 支持图片旋转
+### 自动处理图片旋转
 
-![](https://suohb.com/images/rotate.png)
+依赖 exif-js 库
 
 ## 安装
 
@@ -38,7 +38,6 @@ npm install picture-compressor-plus --save
     methods: {
       fileUpload: function() {
         var file = this.$refs['upload'].files[0];
-        var rotate = 90;
         var reads = new FileReader();
         reads.readAsDataURL(file);
         reads.onload = function() {
@@ -46,7 +45,6 @@ npm install picture-compressor-plus --save
             img: this.result,
             width: 400,
             height: 400,
-            rotate: rotate,
           }).then(res => {
             var img = new Image();
             img.src = res.img;
@@ -65,7 +63,6 @@ or
 <input type="file" id="file" />
 <script src="../dist/picture-compressor-plus.js"></script>
 <script>
-  rotate = 0;
   var files = document.getElementById('file');
   files.addEventListener('change', () => {
     var file = files.files[0];
@@ -76,7 +73,6 @@ or
         img: this.result,
         width: 1000,
         height: 0,
-        rotate: rotate,
       }).then(res => {
         var img = new Image();
         img.src = res.img;
@@ -97,7 +93,6 @@ or
 | quality | Number | 生产图片质量                              | N        | 0.92   |
 | type    | String | 生成图片类型(jpg or png)                  | N        | jpg    |
 | fit     | String | 图片填充方式(scale:等比缩放 or fill:填充) | N        | scale  |
-| rotate  | Number | 图片旋转（0,90,-90,180）度                | N        | 0      |
 
 ## returns 返回值
 
