@@ -10,7 +10,7 @@ module.exports = {
     {
       file: 'dist/picture-compressor-plus.js',
       format: 'umd',
-      name: 'pictureCompress',
+      name: 'pictureCompressPlus',
     },
   ],
   plugins: [
