@@ -45,6 +45,7 @@ npm install picture-compressor-plus --save
             img: this.result,
             width: 400,
             height: 400,
+            fit: 'fill'
           }).then(res => {
             var img = new Image();
             img.src = res.img;

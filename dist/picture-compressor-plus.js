@@ -49,7 +49,6 @@
         var orientation = 1;
         EXIF.getData(image, function () {
           orientation = EXIF.getTag(this, 'Orientation') || 1;
-          console.log(orientation);
         });
         var distSize = getDistSize({
           width: this.naturalWidth,
@@ -57,7 +56,7 @@
         }, {
           width: width,
           height: height
-        }, fit);
+        }, fit, orientation);
         var imgData = compress(this, distSize.width, distSize.height, type, quality, orientation);
         resolve({
           width: distSize.width,
@@ -78,6 +77,8 @@
    * @param {Number} height 转换之后的图片高度
    * @param {String} type base64的图片类型 jpg png
    * @param {Number} quality 转换之后的图片质量
+   * @param {Number} orientation 原图旋转参数
+   *
    */
 
 
@@ -131,12 +132,25 @@
    * 最大值不超过1，如果图片源尺寸小于目标尺寸，则不做处理，返回图片原尺寸
    * @param {Object} source 源图片的宽高
    * @param {Object} dist 目标图片的宽高
+   * @param {String} options.fit 图片压缩填充模式
+   * @param {Object} orientation 原图旋转参数
    */
 
 
-  function getDistSize(source, dist, fit) {
+  function getDistSize(source, dist, fit, orientation) {
+    var scale = 1;
+
+    if (orientation === 6 || orientation === 8) {
+      if (fit === 'fill') return {
+        width: dist.height,
+        height: dist.width
+      };
+      scale = Math.min(dist.width ? dist.width / source.height : 1, dist.height ? dist.height / source.width : 1, 1);
+    } else {
+      scale = Math.min(dist.width ? dist.width / source.width : 1, dist.height ? dist.height / source.height : 1, 1);
+    }
+
     if (fit === 'fill') return dist;
-    var scale = Math.min(dist.width ? dist.width / source.width : 1, dist.height ? dist.height / source.height : 1, 1);
     return {
       width: Math.round(source.width * scale),
       height: Math.round(source.height * scale)
